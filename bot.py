@@ -4,20 +4,14 @@ import aiohttp
 from aiohttp import web
 import discord
 from discord.ext import commands
-from google import genai
-from google.genai import types
 
 # --- CONFIGURATION ---
-# ✅ Google AI Studio API Key එක Koyeb එකේ Environment Variable එකක් විදිහට දාන්න
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY_HERE")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "YOUR_DISCORD_BOT_TOKEN_HERE")
 
-# ✅ Gemini Client එක Initialize කිරීම
-client = genai.Client(api_key=GEMINI_API_KEY)
-
-# ✅ නොමිලේ භාවිතා කළ හැකි අතිශය බුද්ධිමත් සහ වේගවත් මාදිලිය
-# (අවශ්‍ය නම් "gemini-2.5-pro" හෝ "gemini-2.0-flash" ලෙසද වෙනස් කළ හැක)
-MODEL_ID = "gemini-2.5-flash"
+# ✅ Google විසින් නිර්දේශිත අලුත්ම සහ බුද්ධිමත් මාදිලිය
+MODEL_ID = "gemini-3.8-flash"
+API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL_ID}:generateContent?key={GEMINI_API_KEY}"
 
 # Admin System (Main Admin: nowaahmc)
 MAIN_ADMIN = "nowaahmc"
@@ -87,24 +81,38 @@ async def ban_error(ctx, error):
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.reply("අඩෝ command එක පාවිච්චි කරන හැටි දන්නේ නැද්ද? `.ban @User [reason]` විදිහට දාපන්.")
 
-# --- AI MESSAGE HANDLING (GEMINI API) ---
+# --- AI MESSAGE HANDLING (GEMINI REST API VIA AIOHTTP) ---
 
 async def query_gemini(prompt_text):
-    try:
-        # Gemini API එකට යවන Request එක (Async)
-        response = await client.aio.models.generate_content(
-            model=MODEL_ID,
-            contents=prompt_text,
-            config=types.GenerateContentConfig(
-                system_instruction=SYSTEM_PROMPT,
-                temperature=0.7,
-                max_output_tokens=250,
-            )
-        )
-        return response.text.strip()
-    except Exception as e:
-        print(f"Gemini API Error: {e}")
-        return None
+    payload = {
+        "system_instruction": {
+            "parts": [{"text": SYSTEM_PROMPT}]
+        },
+        "contents": [
+            {
+                "role": "user",
+                "parts": [{"text": prompt_text}]
+            }
+        ],
+        "generationConfig": {
+            "temperature": 0.7,
+            "maxOutputTokens": 250,
+        }
+    }
+    
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.post(API_URL, json=payload, timeout=60) as response:
+                if response.status == 200:
+                    result = await response.json()
+                    return result["candidates"][0]["content"]["parts"][0]["text"].strip()
+                else:
+                    error_body = await response.text()
+                    print(f"Gemini API Error ({response.status}): {error_body}")
+                    return None
+        except Exception as e:
+            print(f"Connection Error: {e}")
+            return None
 
 @bot.event
 async def on_message(message):
