@@ -1,6 +1,7 @@
 import os
 import asyncio
 import aiohttp
+from aiohttp import web
 import discord
 from discord.ext import commands
 
@@ -94,7 +95,6 @@ async def query_huggingface(prompt_text):
                 result = await response.json()
                 if isinstance(result, list) and len(result) > 0:
                     generated_text = result[0].get("generated_text", "")
-                    # Extract only the assistant's reply part
                     if "<|start_header_id|>assistant<|end_header_id|>" in generated_text:
                         reply = generated_text.split("<|start_header_id|>assistant<|end_header_id|>")[1].strip()
                         return reply
