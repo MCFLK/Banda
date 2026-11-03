@@ -9,15 +9,16 @@ from discord.ext import commands
 HF_API_KEY = os.getenv("HUGGINGFACE_API_KEY", "YOUR_HUGGINGFACE_TOKEN_HERE")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "YOUR_DISCORD_BOT_TOKEN_HERE")
 
-# ✅ නව Hugging Face Router API Endpoint එක (OpenAI Compatible)
+# ✅ Hugging Face Router API Endpoint (OpenAI Compatible)
 API_URL = "https://router.huggingface.co/v1/chat/completions"
 headers = {
     "Authorization": f"Bearer {HF_API_KEY}",
     "Content-Type": "application/json"
 }
 
-# ✅ Hugging Face හරහා ක්‍රියාත්මක වන ලොව ජනප්‍රියම සහ බලවත්ම මාදිලිය (Llama 3.3 70B)
-MODEL_ID = "meta-llama/Llama-3.3-70B-Instruct"
+# ✅ නොමිලේ භාවිතා කළ හැකි මාදිලිය (Qwen2.5-7B-Instruct)
+# වෙනත් විකල්ප: "meta-llama/Meta-Llama-3.1-8B-Instruct", "google/gemma-3-4b-it"
+MODEL_ID = "Qwen/Qwen2.5-7B-Instruct"
 
 # Admin System (Main Admin: nowaahmc)
 MAIN_ADMIN = "nowaahmc"
