@@ -9,9 +9,16 @@ from discord.ext import commands
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY_HERE")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "YOUR_DISCORD_BOT_TOKEN_HERE")
 
-# ✅ ඔබ එවපු Image එකේ තියෙන අලුත්ම සහ වේගවත්ම Lite මාදිලිය
+# ✅ ඔබ එවපු image එකේ තියෙන අලුත්ම සහ වේගවත්ම Lite මාදිලිය
 MODEL_ID = "gemini-3.1-flash-lite"
-API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL_ID}:generateContent?key={GEMINI_API_KEY}"
+
+# ✅ API Key එක URL එකෙන් අයින් කරලා, header එකකින් යවනවා (403 එක නවත්තන්න)
+API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL_ID}:generateContent"
+
+headers = {
+    "x-goog-api-key": GEMINI_API_KEY,
+    "Content-Type": "application/json"
+}
 
 # Admin System (Main Admin: nowaahmc)
 MAIN_ADMIN = "nowaahmc"
@@ -103,12 +110,12 @@ async def query_gemini(prompt_text, retries=2):
     async with aiohttp.ClientSession() as session:
         for attempt in range(retries + 1):
             try:
-                async with session.post(API_URL, json=payload, timeout=60) as response:
+                # ✅ headers එකත් එක්ක request එක යවනවා
+                async with session.post(API_URL, headers=headers, json=payload, timeout=60) as response:
                     if response.status == 200:
                         result = await response.json()
                         return result["candidates"][0]["content"]["parts"][0]["text"].strip()
                     elif response.status == 503 and attempt < retries:
-                        # 503 (Busy) ආවොත් තත්පර 2ක් ඉඳලා ආයේ ට්‍රයි කරනවා
                         print(f"Model busy (503). Retrying attempt {attempt + 1}...")
                         await asyncio.sleep(2)
                         continue
