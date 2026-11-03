@@ -9,8 +9,8 @@ from discord.ext import commands
 HF_API_KEY = os.getenv("HUGGINGFACE_API_KEY", "YOUR_HUGGINGFACE_TOKEN_HERE")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "YOUR_DISCORD_BOT_TOKEN_HERE")
 
-# Hugging Face API Setup (Using Meta Llama 3)
-API_URL = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct"
+# ✅ FIXED: Hugging Face API URL (router endpoint)
+API_URL = "https://router.huggingface.co/hf-inference/models/meta-llama/Meta-Llama-3-8B-Instruct"
 headers = {"Authorization": f"Bearer {HF_API_KEY}"}
 
 # Admin System (Main Admin: nowaahmc)
