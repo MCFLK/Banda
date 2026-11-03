@@ -9,10 +9,8 @@ from discord.ext import commands
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY_HERE")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "YOUR_DISCORD_BOT_TOKEN_HERE")
 
-# ✅ ඔබ කිව්ව විදිහට අලුත්ම 3.8-flash මාදිලිය
-MODEL_ID = "gemini-3.8-flash"
-
-# ✅ 403 Error එක එන්නේ නැති වෙන්න API Key එක URL එකෙන් යවනවා
+# ✅ ඔබ එවපු Image එකේ තියෙන අලුත්ම සහ වේගවත්ම Lite මාදිලිය
+MODEL_ID = "gemini-3.1-flash-lite"
 API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL_ID}:generateContent?key={GEMINI_API_KEY}"
 
 # Admin System (Main Admin: nowaahmc)
@@ -38,7 +36,7 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f'🔥 Bandara (Gemini 3.8 Edition) is online! Logged in as {bot.user}')
+    print(f'🔥 Bandara (Gemini Lite Edition) is online! Logged in as {bot.user}')
 
 # --- CUSTOM COMMANDS ---
 
@@ -85,8 +83,7 @@ async def ban_error(ctx, error):
 
 # --- AI MESSAGE HANDLING (GEMINI REST API) ---
 
-async def query_gemini(prompt_text):
-    # ✅ Google REST API එකට අවශ්‍ය ආකෘතිය (camelCase)
+async def query_gemini(prompt_text, retries=2):
     payload = {
         "systemInstruction": {
             "parts": [{"text": SYSTEM_PROMPT}]
@@ -104,19 +101,28 @@ async def query_gemini(prompt_text):
     }
     
     async with aiohttp.ClientSession() as session:
-        try:
-            # API key එක URL එකේ ?key= ලෙසම යවනවා
-            async with session.post(API_URL, json=payload, timeout=60) as response:
-                if response.status == 200:
-                    result = await response.json()
-                    return result["candidates"][0]["content"]["parts"][0]["text"].strip()
-                else:
-                    error_body = await response.text()
-                    print(f"Gemini API Error ({response.status}): {error_body}")
-                    return None
-        except Exception as e:
-            print(f"Connection Error: {e}")
-            return None
+        for attempt in range(retries + 1):
+            try:
+                async with session.post(API_URL, json=payload, timeout=60) as response:
+                    if response.status == 200:
+                        result = await response.json()
+                        return result["candidates"][0]["content"]["parts"][0]["text"].strip()
+                    elif response.status == 503 and attempt < retries:
+                        # 503 (Busy) ආවොත් තත්පර 2ක් ඉඳලා ආයේ ට්‍රයි කරනවා
+                        print(f"Model busy (503). Retrying attempt {attempt + 1}...")
+                        await asyncio.sleep(2)
+                        continue
+                    else:
+                        error_body = await response.text()
+                        print(f"Gemini API Error ({response.status}): {error_body}")
+                        return None
+            except Exception as e:
+                print(f"Connection Error: {e}")
+                if attempt < retries:
+                    await asyncio.sleep(2)
+                    continue
+                return None
+        return None
 
 @bot.event
 async def on_message(message):
@@ -154,14 +160,14 @@ async def on_message(message):
                 if ai_response:
                     await message.reply(ai_response)
                 else:
-                    await message.reply("අඩෝ Gemini API එකේ පොඩි අවුලක් වගේ. ටිකකින් ආයේ ට්‍රයි කරපන්.")
+                    await message.reply("අඩෝ Gemini API එක දැන් ටිකක් ස්ලෝ වගේ. ටිකකින් ආයේ ට්‍රයි කරපන්.")
             except Exception as e:
                 print(f"Error: {e}")
                 await message.reply("අඩෝ මොකක් හරි technical error එකක් ආවා බං. පස්සේ ට්‍රයි එකක් දීපන්.")
 
 # --- FAKE HEALTH CHECK SERVER FOR KOYEB ---
 async def handle_health(request):
-    return web.Response(text="Bandara Bot (Gemini) is Healthy and Alive!")
+    return web.Response(text="Bandara Bot (Gemini Lite) is Healthy and Alive!")
 
 async def start_web_server():
     app = web.Application()
