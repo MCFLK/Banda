@@ -1,19 +1,20 @@
 import os
+import asyncio
+from aiohttp import web
 import discord
 from discord.ext import commands
 import google.generativeai as genai
 
 # --- CONFIGURATION ---
-# ඔයාගේ API Key එක සහ Discord Token එක මෙතැන දාන්න (නැත්නම් environment variables වල set කරන්න)
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6JZKFaojguT4GVWjER1Dd3ZsgjB_NK_a9SFbDSFgPid3w")
-DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "MTU2NzA1NDg2MjI5Mjc1NDQ5Mw.GDef4q.5N3svIKUWhMc8--n9Ch4ri-9FrKuj9ktKga2to")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY_HERE")
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "YOUR_DISCORD_BOT_TOKEN_HERE")
 
 # Setup Gemini API
 genai.configure(api_key=GEMINI_API_KEY)
 
 # Admin System (Main Admin: nowaahmc)
 MAIN_ADMIN = "nowaahmc"
-admin_users = {MAIN_ADMIN}  # Admin usernames save කරගන්න Set එකක්
+admin_users = {MAIN_ADMIN}
 
 # Bandara's Persona / System Prompt for RedHat MC Network
 SYSTEM_PROMPT = """
@@ -48,7 +49,6 @@ async def ping(ctx):
     latency = round(bot.latency * 1000)
     await ctx.reply(f"pong! 🏓 වැඩ කරනවා බං, Latency එක **{latency}ms** වගේ.")
 
-# Command: .admin <username> (Main admin nowaahmc ට හෝ වෙනත් admin කෙනෙක්ට තව admin කෙනෙක් add කරන්න පුළුවන්)
 @bot.command(name="admin")
 async def add_admin(ctx, username: str = None):
     author_name = ctx.author.name
@@ -105,7 +105,7 @@ async def on_message(message):
         except Exception:
             pass
 
-    is_special_channel = getattr(message.channel, 'name', '') == 'gaamini-chat'
+    is_special_channel = getattr(message.channel, 'name', '') == 'bandara-chat'
 
     if isinstance(message.channel, discord.DMChannel) or is_mentioned or is_reply_to_bot or is_special_channel:
         if message.content.startswith('.'):
@@ -125,5 +125,26 @@ async def on_message(message):
                 print(f"Error: {e}")
                 await message.reply("අඩෝ මොකක් හරි technical error එකක් ආවා බං. පස්සේ ට්‍රයි එකක් දීපන්.")
 
-# Run the bot
-bot.run(DISCORD_TOKEN)
+# --- FAKE HEALTH CHECK SERVER FOR KOYEB ---
+async def handle_health(request):
+    return web.Response(text="Bandara Bot is Healthy and Alive!")
+
+async def start_web_server():
+    app = web.Application()
+    app.router.add_get("/", handle_health)
+    app.router.add_get("/health", handle_health)
+    
+    port = int(os.environ.get("PORT", 8000))
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+    print(f"🌐 Fake Health Check Server running on port {port}")
+
+async def main():
+    # Run the web server and the discord bot concurrently
+    await start_web_server()
+    await bot.start(DISCORD_TOKEN)
+
+if __name__ == "__main__":
+    asyncio.run(main())
