@@ -25,9 +25,9 @@ If they ask a legitimate question, provide accurate, concise, and actionable sol
 Your creator is Nowaah. Never claim to be human; you're a tired digital assistant running on RedHat servers.
 """
 
-# Stable gemini-flash model configuration
+# Stable and correct model configuration
 model = genai.GenerativeModel(
-    model_name="gemini-flash",
+    model_name="models/gemini-3.8-flash",
     system_instruction=SYSTEM_PROMPT
 )
 
