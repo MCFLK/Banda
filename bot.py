@@ -1,16 +1,16 @@
 import os
 import asyncio
-from aiohttp import web
+import aiohttp
 import discord
 from discord.ext import commands
-import google.generativeai as genai
 
 # --- CONFIGURATION ---
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY_HERE")
+HF_API_KEY = os.getenv("HUGGINGFACE_API_KEY", "YOUR_HUGGINGFACE_TOKEN_HERE")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "YOUR_DISCORD_BOT_TOKEN_HERE")
 
-# Setup Gemini API
-genai.configure(api_key=GEMINI_API_KEY)
+# Hugging Face API Setup (Using Meta Llama 3)
+API_URL = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct"
+headers = {"Authorization": f"Bearer {HF_API_KEY}"}
 
 # Admin System (Main Admin: nowaahmc)
 MAIN_ADMIN = "nowaahmc"
@@ -25,12 +25,6 @@ If they ask a legitimate question, provide accurate, concise, and actionable sol
 Your creator is Nowaah. Never claim to be human; you're a tired digital assistant running on RedHat servers.
 """
 
-# Stable and correct model configuration
-model = genai.GenerativeModel(
-    model_name="models/gemini-3.8-flash",
-    system_instruction=SYSTEM_PROMPT
-)
-
 # Setup Discord Bot with intents
 intents = discord.Intents.default()
 intents.message_content = True
@@ -41,7 +35,7 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f'🔥 Bandara is online! Logged in as {bot.user}')
+    print(f'🔥 Bandara (Hugging Face Edition) is online! Logged in as {bot.user}')
 
 # --- CUSTOM COMMANDS ---
 
@@ -86,7 +80,26 @@ async def ban_error(ctx, error):
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.reply("අඩෝ command එක පාවිච්චි කරන හැටි දන්නේ නැද්ද? `.ban @User [reason]` විදිහට දාපන්.")
 
-# --- AI MESSAGE HANDLING ---
+# --- AI MESSAGE HANDLING (HUGGING FACE) ---
+
+async def query_huggingface(prompt_text):
+    payload = {
+        "inputs": f"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n{SYSTEM_PROMPT}<|eot_id|><|start_header_id|>user<|end_header_id|>\n{prompt_text}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n",
+        "parameters": {"max_new_tokens": 250, "temperature": 0.7}
+    }
+    
+    async with aiohttp.ClientSession() as session:
+        async with session.post(API_URL, headers=headers, json=payload) as response:
+            if response.status == 200:
+                result = await response.json()
+                if isinstance(result, list) and len(result) > 0:
+                    generated_text = result[0].get("generated_text", "")
+                    # Extract only the assistant's reply part
+                    if "<|start_header_id|>assistant<|end_header_id|>" in generated_text:
+                        reply = generated_text.split("<|start_header_id|>assistant<|end_header_id|>")[1].strip()
+                        return reply
+                    return generated_text
+            return None
 
 @bot.event
 async def on_message(message):
@@ -120,15 +133,18 @@ async def on_message(message):
                     await message.reply("මොකද බං මුහුද බලාගෙන ඉන්නේ? කියන දෙයක් පැහැදිලිව කියපන්!")
                     return
 
-                response = model.generate_content(clean_content)
-                await message.reply(response.text)
+                ai_response = await query_huggingface(clean_content)
+                if ai_response:
+                    await message.reply(ai_response)
+                else:
+                    await message.reply("අඩෝ Hugging Face model එක දැන් busy වගේ. පොඩි වෙලාවකින් ට්‍රයි එකක් දීපන්.")
             except Exception as e:
                 print(f"Error: {e}")
                 await message.reply("අඩෝ මොකක් හරි technical error එකක් ආවා බං. පස්සේ ට්‍රයි එකක් දීපන්.")
 
 # --- FAKE HEALTH CHECK SERVER FOR KOYEB ---
 async def handle_health(request):
-    return web.Response(text="Bandara Bot is Healthy and Alive!")
+    return web.Response(text="Bandara Bot (HF) is Healthy and Alive!")
 
 async def start_web_server():
     app = web.Application()
