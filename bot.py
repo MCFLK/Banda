@@ -16,10 +16,8 @@ headers = {
     "Content-Type": "application/json"
 }
 
-# ✅ ඉහළ බුද්ධියක් සහ සිංහල හැකියාවන් සහිත මාදිලිය (Chat2Find හෝ Gamunu)
-# සිංහල/දෙමළ/ඉංග්‍රීසි සඳහා: "Chat2Find/chat2find-instruct-v1"
-# සිංහල/ඉංග්‍රීසි සඳහා: "manthilaffs/Gamunu-4B-Instruct-Alpha"
-MODEL_ID = "Chat2Find/chat2find-instruct-v1"
+# ✅ Hugging Face හරහා ක්‍රියාත්මක වන ලොව ජනප්‍රියම සහ බලවත්ම මාදිලිය (Llama 3.3 70B)
+MODEL_ID = "meta-llama/Llama-3.3-70B-Instruct"
 
 # Admin System (Main Admin: nowaahmc)
 MAIN_ADMIN = "nowaahmc"
@@ -92,7 +90,6 @@ async def ban_error(ctx, error):
 # --- AI MESSAGE HANDLING (HUGGING FACE ROUTER API) ---
 
 async def query_huggingface(prompt_text):
-    # ✅ OpenAI-ආකෘති සහිත නව Payload එක
     payload = {
         "model": MODEL_ID,
         "messages": [
@@ -109,7 +106,6 @@ async def query_huggingface(prompt_text):
             async with session.post(API_URL, headers=headers, json=payload, timeout=60) as response:
                 if response.status == 200:
                     result = await response.json()
-                    # OpenAI standard response format
                     return result["choices"][0]["message"]["content"].strip()
                 else:
                     error_body = await response.text()
