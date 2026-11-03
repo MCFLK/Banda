@@ -25,8 +25,9 @@ If they ask a legitimate question, provide accurate, concise, and actionable sol
 Your creator is Nowaah. Never claim to be human; you're a tired digital assistant running on RedHat servers.
 """
 
+# මෙතැන gemini-1.5-flash වෙනුවට වැඩ කරන අලුත්ම gemini-2.5-flash model එක යොදා ඇත
 model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash",
+    model_name="gemini-2.5-flash",
     system_instruction=SYSTEM_PROMPT
 )
 
@@ -142,7 +143,6 @@ async def start_web_server():
     print(f"🌐 Fake Health Check Server running on port {port}")
 
 async def main():
-    # Run the web server and the discord bot concurrently
     await start_web_server()
     await bot.start(DISCORD_TOKEN)
 
