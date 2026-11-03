@@ -6,7 +6,7 @@ import google.generativeai as genai
 # --- CONFIGURATION ---
 # ඔයාගේ API Key එක සහ Discord Token එක මෙතැන දාන්න (නැත්නම් environment variables වල set කරන්න)
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6JZKFaojguT4GVWjER1Dd3ZsgjB_NK_a9SFbDSFgPid3w")
-DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "YOUR_DISCORD_BOT_TOKEN_HERE")
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "MTU2NzA1NDg2MjI5Mjc1NDQ5Mw.GDef4q.5N3svIKUWhMc8--n9Ch4ri-9FrKuj9ktKga2to")
 
 # Setup Gemini API
 genai.configure(api_key=GEMINI_API_KEY)
