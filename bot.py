@@ -4,13 +4,18 @@ from discord.ext import commands
 import google.generativeai as genai
 
 # --- CONFIGURATION ---
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY_HERE")
+# ඔයාගේ API Key එක සහ Discord Token එක මෙතැන දාන්න (නැත්නම් environment variables වල set කරන්න)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6JZKFaojguT4GVWjER1Dd3ZsgjB_NK_a9SFbDSFgPid3w")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "YOUR_DISCORD_BOT_TOKEN_HERE")
 
 # Setup Gemini API
 genai.configure(api_key=GEMINI_API_KEY)
 
-# Banda's Persona / System Prompt for RedHat MC Network
+# Admin System (Main Admin: nowaahmc)
+MAIN_ADMIN = "nowaahmc"
+admin_users = {MAIN_ADMIN}  # Admin usernames save කරගන්න Set එකක්
+
+# Bandara's Persona / System Prompt for RedHat MC Network
 SYSTEM_PROMPT = """
 You are Bandara, a blunt, slightly sarcastic, and witty support assistant working in the RedHat MC Network Discord and ticket system. 
 You speak in a seamless mix of Sinhala and English, matching the user's language style, and use mild gaming-chat and Discord slang.
@@ -34,7 +39,7 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f'🔥 Bandara is online and ready to roast! Logged in as {bot.user}')
+    print(f'🔥 Bandara is online! Logged in as {bot.user}')
 
 # --- CUSTOM COMMANDS ---
 
@@ -42,6 +47,23 @@ async def on_ready():
 async def ping(ctx):
     latency = round(bot.latency * 1000)
     await ctx.reply(f"pong! 🏓 වැඩ කරනවා බං, Latency එක **{latency}ms** වගේ.")
+
+# Command: .admin <username> (Main admin nowaahmc ට හෝ වෙනත් admin කෙනෙක්ට තව admin කෙනෙක් add කරන්න පුළුවන්)
+@bot.command(name="admin")
+async def add_admin(ctx, username: str = None):
+    author_name = ctx.author.name
+    
+    if author_name not in admin_users:
+        await ctx.reply("අඩෝ! උඹට මේ command එක පාවිච්චි කරන්න permission නැහැ බං.")
+        return
+
+    if not username:
+        await ctx.reply("අඩෝ username එකක් දාපන්! උදා: `.admin username`")
+        return
+
+    clean_username = username.replace("@", "").strip()
+    admin_users.add(clean_username)
+    await ctx.reply(f"✅ **{clean_username}** ව දැන් Bot Admin විදිහට add කළා බං!")
 
 @bot.command(name="ban")
 @commands.has_permissions(ban_members=True)
@@ -63,18 +85,15 @@ async def ban_error(ctx, error):
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.reply("අඩෝ command එක පාවිච්චි කරන හැටි දන්නේ නැද්ද? `.ban @User [reason]` විදිහට දාපන්.")
 
-# --- AI MESSAGE HANDLING (REPLY EFFECT & CHANNEL SAFEGUARD) ---
+# --- AI MESSAGE HANDLING ---
 
 @bot.event
 async def on_message(message):
-    # Bot ge message agiddare stop madu
     if message.author == bot.user:
         return
 
-    # Commands execute agalu ivu avasya
     await bot.process_commands(message)
 
-    # #gaamini-chat athava specific channelsnalli direct chat madalu athava mention/reply madida shtha work agalu
     is_mentioned = bot.user.mentioned_in(message)
     is_reply_to_bot = False
 
@@ -86,16 +105,12 @@ async def on_message(message):
         except Exception:
             pass
 
-    # Yuvudu channel ayirali, #gaamini-chat nalli eka message kalsidru auto reply madalu (optional, illadiddare mention/reply beku)
-    # Illi nimage #gaamini-chat channel namath ekatige allow madalu check add madabahudu: message.channel.name == "gaamini-chat"
-    should_respond = (
-        isinstance(message.channel, discord.DMChannel) or 
-        is_mentioned or 
-        is_reply_to_bot or
-        getattr(message.channel, 'name', '') == 'gaamini-chat'
-    )
+    is_special_channel = getattr(message.channel, 'name', '') == 'gaamini-chat'
 
-    if should_respond:
+    if isinstance(message.channel, discord.DMChannel) or is_mentioned or is_reply_to_bot or is_special_channel:
+        if message.content.startswith('.'):
+            return
+
         async with message.channel.typing():
             try:
                 clean_content = message.content.replace(f'<@!{bot.user.id}>', '').replace(f'<@{bot.user.id}>', '').strip()
@@ -105,7 +120,6 @@ async def on_message(message):
                     return
 
                 response = model.generate_content(clean_content)
-                # Reply effect (Ping reference sathithava kalsutte)
                 await message.reply(response.text)
             except Exception as e:
                 print(f"Error: {e}")
