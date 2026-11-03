@@ -4,21 +4,20 @@ import aiohttp
 from aiohttp import web
 import discord
 from discord.ext import commands
+from google import genai
+from google.genai import types
 
 # --- CONFIGURATION ---
-HF_API_KEY = os.getenv("HUGGINGFACE_API_KEY", "YOUR_HUGGINGFACE_TOKEN_HERE")
+# ✅ Google AI Studio API Key එක Koyeb එකේ Environment Variable එකක් විදිහට දාන්න
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY_HERE")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "YOUR_DISCORD_BOT_TOKEN_HERE")
 
-# ✅ Hugging Face Router API Endpoint (OpenAI Compatible)
-API_URL = "https://router.huggingface.co/v1/chat/completions"
-headers = {
-    "Authorization": f"Bearer {HF_API_KEY}",
-    "Content-Type": "application/json"
-}
+# ✅ Gemini Client එක Initialize කිරීම
+client = genai.Client(api_key=GEMINI_API_KEY)
 
-# ✅ නොමිලේ භාවිතා කළ හැකි මාදිලිය (Qwen2.5-7B-Instruct)
-# වෙනත් විකල්ප: "meta-llama/Meta-Llama-3.1-8B-Instruct", "google/gemma-3-4b-it"
-MODEL_ID = "Qwen/Qwen2.5-7B-Instruct"
+# ✅ නොමිලේ භාවිතා කළ හැකි අතිශය බුද්ධිමත් සහ වේගවත් මාදිලිය
+# (අවශ්‍ය නම් "gemini-2.5-pro" හෝ "gemini-2.0-flash" ලෙසද වෙනස් කළ හැක)
+MODEL_ID = "gemini-2.5-flash"
 
 # Admin System (Main Admin: nowaahmc)
 MAIN_ADMIN = "nowaahmc"
@@ -43,7 +42,7 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f'🔥 Bandara (Hugging Face Edition) is online! Logged in as {bot.user}')
+    print(f'🔥 Bandara (Gemini Edition) is online! Logged in as {bot.user}')
 
 # --- CUSTOM COMMANDS ---
 
@@ -88,33 +87,24 @@ async def ban_error(ctx, error):
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.reply("අඩෝ command එක පාවිච්චි කරන හැටි දන්නේ නැද්ද? `.ban @User [reason]` විදිහට දාපන්.")
 
-# --- AI MESSAGE HANDLING (HUGGING FACE ROUTER API) ---
+# --- AI MESSAGE HANDLING (GEMINI API) ---
 
-async def query_huggingface(prompt_text):
-    payload = {
-        "model": MODEL_ID,
-        "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": prompt_text}
-        ],
-        "temperature": 0.7,
-        "max_tokens": 250,
-        "stream": False
-    }
-    
-    async with aiohttp.ClientSession() as session:
-        try:
-            async with session.post(API_URL, headers=headers, json=payload, timeout=60) as response:
-                if response.status == 200:
-                    result = await response.json()
-                    return result["choices"][0]["message"]["content"].strip()
-                else:
-                    error_body = await response.text()
-                    print(f"HF API Error ({response.status}): {error_body}")
-                    return None
-        except Exception as e:
-            print(f"Connection Error: {e}")
-            return None
+async def query_gemini(prompt_text):
+    try:
+        # Gemini API එකට යවන Request එක (Async)
+        response = await client.aio.models.generate_content(
+            model=MODEL_ID,
+            contents=prompt_text,
+            config=types.GenerateContentConfig(
+                system_instruction=SYSTEM_PROMPT,
+                temperature=0.7,
+                max_output_tokens=250,
+            )
+        )
+        return response.text.strip()
+    except Exception as e:
+        print(f"Gemini API Error: {e}")
+        return None
 
 @bot.event
 async def on_message(message):
@@ -148,18 +138,18 @@ async def on_message(message):
                     await message.reply("මොකද බං මුහුද බලාගෙන ඉන්නේ? කියන දෙයක් පැහැදිලිව කියපන්!")
                     return
 
-                ai_response = await query_huggingface(clean_content)
+                ai_response = await query_gemini(clean_content)
                 if ai_response:
                     await message.reply(ai_response)
                 else:
-                    await message.reply("අඩෝ Hugging Face model එක දැන් busy වගේ. පොඩි වෙලාවකින් ට්‍රයි එකක් දීපන්.")
+                    await message.reply("අඩෝ Gemini API එකේ පොඩි අවුලක් වගේ. ටිකකින් ආයේ ට්‍රයි කරපන්.")
             except Exception as e:
                 print(f"Error: {e}")
                 await message.reply("අඩෝ මොකක් හරි technical error එකක් ආවා බං. පස්සේ ට්‍රයි එකක් දීපන්.")
 
 # --- FAKE HEALTH CHECK SERVER FOR KOYEB ---
 async def handle_health(request):
-    return web.Response(text="Bandara Bot (HF) is Healthy and Alive!")
+    return web.Response(text="Bandara Bot (Gemini) is Healthy and Alive!")
 
 async def start_web_server():
     app = web.Application()
