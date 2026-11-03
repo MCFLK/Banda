@@ -9,8 +9,10 @@ from discord.ext import commands
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY_HERE")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "YOUR_DISCORD_BOT_TOKEN_HERE")
 
-# ✅ Google විසින් නිර්දේශිත අලුත්ම සහ බුද්ධිමත් මාදිලිය
+# ✅ ඔබ කිව්ව විදිහට අලුත්ම 3.8-flash මාදිලිය
 MODEL_ID = "gemini-3.8-flash"
+
+# ✅ 403 Error එක එන්නේ නැති වෙන්න API Key එක URL එකෙන් යවනවා
 API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL_ID}:generateContent?key={GEMINI_API_KEY}"
 
 # Admin System (Main Admin: nowaahmc)
@@ -36,7 +38,7 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f'🔥 Bandara (Gemini Edition) is online! Logged in as {bot.user}')
+    print(f'🔥 Bandara (Gemini 3.8 Edition) is online! Logged in as {bot.user}')
 
 # --- CUSTOM COMMANDS ---
 
@@ -81,11 +83,12 @@ async def ban_error(ctx, error):
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.reply("අඩෝ command එක පාවිච්චි කරන හැටි දන්නේ නැද්ද? `.ban @User [reason]` විදිහට දාපන්.")
 
-# --- AI MESSAGE HANDLING (GEMINI REST API VIA AIOHTTP) ---
+# --- AI MESSAGE HANDLING (GEMINI REST API) ---
 
 async def query_gemini(prompt_text):
+    # ✅ Google REST API එකට අවශ්‍ය ආකෘතිය (camelCase)
     payload = {
-        "system_instruction": {
+        "systemInstruction": {
             "parts": [{"text": SYSTEM_PROMPT}]
         },
         "contents": [
@@ -102,6 +105,7 @@ async def query_gemini(prompt_text):
     
     async with aiohttp.ClientSession() as session:
         try:
+            # API key එක URL එකේ ?key= ලෙසම යවනවා
             async with session.post(API_URL, json=payload, timeout=60) as response:
                 if response.status == 200:
                     result = await response.json()
