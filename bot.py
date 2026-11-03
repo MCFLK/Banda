@@ -9,9 +9,17 @@ from discord.ext import commands
 HF_API_KEY = os.getenv("HUGGINGFACE_API_KEY", "YOUR_HUGGINGFACE_TOKEN_HERE")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "YOUR_DISCORD_BOT_TOKEN_HERE")
 
-# ✅ FIXED: Hugging Face API URL (router endpoint)
-API_URL = "https://router.huggingface.co/hf-inference/models/meta-llama/Meta-Llama-3-8B-Instruct"
-headers = {"Authorization": f"Bearer {HF_API_KEY}"}
+# ✅ නව Hugging Face Router API Endpoint එක (OpenAI Compatible)
+API_URL = "https://router.huggingface.co/v1/chat/completions"
+headers = {
+    "Authorization": f"Bearer {HF_API_KEY}",
+    "Content-Type": "application/json"
+}
+
+# ✅ ඉහළ බුද්ධියක් සහ සිංහල හැකියාවන් සහිත මාදිලිය (Chat2Find හෝ Gamunu)
+# සිංහල/දෙමළ/ඉංග්‍රීසි සඳහා: "Chat2Find/chat2find-instruct-v1"
+# සිංහල/ඉංග්‍රීසි සඳහා: "manthilaffs/Gamunu-4B-Instruct-Alpha"
+MODEL_ID = "Chat2Find/chat2find-instruct-v1"
 
 # Admin System (Main Admin: nowaahmc)
 MAIN_ADMIN = "nowaahmc"
@@ -81,24 +89,34 @@ async def ban_error(ctx, error):
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.reply("අඩෝ command එක පාවිච්චි කරන හැටි දන්නේ නැද්ද? `.ban @User [reason]` විදිහට දාපන්.")
 
-# --- AI MESSAGE HANDLING (HUGGING FACE) ---
+# --- AI MESSAGE HANDLING (HUGGING FACE ROUTER API) ---
 
 async def query_huggingface(prompt_text):
+    # ✅ OpenAI-ආකෘති සහිත නව Payload එක
     payload = {
-        "inputs": f"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n{SYSTEM_PROMPT}<|eot_id|><|start_header_id|>user<|end_header_id|>\n{prompt_text}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n",
-        "parameters": {"max_new_tokens": 250, "temperature": 0.7}
+        "model": MODEL_ID,
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": prompt_text}
+        ],
+        "temperature": 0.7,
+        "max_tokens": 250,
+        "stream": False
     }
     
     async with aiohttp.ClientSession() as session:
-        async with session.post(API_URL, headers=headers, json=payload) as response:
-            if response.status == 200:
-                result = await response.json()
-                if isinstance(result, list) and len(result) > 0:
-                    generated_text = result[0].get("generated_text", "")
-                    if "<|start_header_id|>assistant<|end_header_id|>" in generated_text:
-                        reply = generated_text.split("<|start_header_id|>assistant<|end_header_id|>")[1].strip()
-                        return reply
-                    return generated_text
+        try:
+            async with session.post(API_URL, headers=headers, json=payload, timeout=60) as response:
+                if response.status == 200:
+                    result = await response.json()
+                    # OpenAI standard response format
+                    return result["choices"][0]["message"]["content"].strip()
+                else:
+                    error_body = await response.text()
+                    print(f"HF API Error ({response.status}): {error_body}")
+                    return None
+        except Exception as e:
+            print(f"Connection Error: {e}")
             return None
 
 @bot.event
