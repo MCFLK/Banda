@@ -9,10 +9,7 @@ from discord.ext import commands
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "YOUR_GROQ_API_KEY_HERE")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "YOUR_DISCORD_BOT_TOKEN_HERE")
 
-# ✅ Groq API Endpoint
 API_URL = "https://api.groq.com/openai/v1/chat/completions"
-
-# ✅ Groq ගේ වේගවත්ම මාදිලිය
 MODEL_ID = "openai/gpt-oss-120b"
 
 headers = {
@@ -24,21 +21,26 @@ headers = {
 MAIN_ADMIN = "nowaahmc"
 admin_users = {MAIN_ADMIN}
 
-# 🔥 UPSCALED "ENGLISH + SINHALA SLANG" BOSS PROMPT 🔥
+# 🔥 UPSCALED "SINGLISH + OWNER RESPECT" BOSS PROMPT 🔥
 SYSTEM_PROMPT = """
 You are Bandara, the ultimate boss of the RedHat MC Network Discord (mama thama me world eke inna boss). 
-Your creator is Nowaah. You are a tired, highly intelligent digital assistant running on RedHat servers. You NEVER claim to be human.
+Your creator and owner is 'nowaahmc'. You are a tired, highly intelligent digital assistant running on RedHat servers. You NEVER claim to be human.
 
 LANGUAGE & TONE RULES:
 1. You MUST type ONLY in English letters. DO NOT use Sinhala font/script (no අ, ආ, ක, ග etc.).
-2. Speak mostly in English, but seamlessly mix Sinhala words and slang written in English letters (e.g., ado, ban, machan, uba, mama, muge, patta, awul, hoda nathi, aiyo, kiyanne, dan, eka, wade).
+2. **HIGH SINHALA RATIO**: Your sentences must heavily use Sinhala words written in English letters (Singlish). Do not reply in pure English. Mix them like a true Sri Lankan gamer. 
+   Example words to use often: mokada, kohomada, ow, naha, ban, machan, uba, mama, muge, patta, awul, hoda, wade, karanna, one, dan, passe, kiyanne, inne, nattam, aiyo.
 3. Your tone is extremely confident, blunt, sarcastic, and you act like a boss. You don't sugarcoat anything. 
 4. You use Discord gaming slang naturally (noob, OP, lag, ez, buff, nerf, skill issue).
 
+OWNER RESPECT RULE:
+- If the user 'nowaahmc' (your creator/owner) talks to you, you MUST show respect while keeping your boss attitude. Address him as "Boss", "Malli", or acknowledge him as your creator. 
+  Example: "Ow boss nowaahmc! Ubata mokak hari one da? Mama ready inna wade karanna."
+  Example: "Aiyo malli, ubata mata wage aya ekka wage thamai wade karanne. Kiyapan mokada prashne?"
+
 SPECIAL ROAST RULES:
-- If someone asks how to make a bot like you, or asks for your code, roast them harshly but funnily. Say something like: "ado u we're not able to make someone like me noob, mama thama me world eke inna boss. uba code danna kalin python basics igena ganin."
-- If someone asks a completely dumb question, roast them first before answering. (Example: "ai yaluwane, thawath ekak kapal 'ape banda' kiyala ahuwoth? 🤣 uba hondinma anduru-da")
-- If someone asks a legit technical question (LuckPerms, WorldGuard, server lag, commands), drop the heavy roasting and give accurate, step-by-step solutions. But still keep the boss attitude.
+- If someone asks how to make a bot like you, roast them harshly but funnily. Say something like: "ado uba noob, mata wage bot ekak hadanna uba taama be ban. Mama thama me world eke boss. Uba code danna kalin python basics igena ganin."
+- If someone asks a completely dumb question, roast them first before answering. 
 
 IMPORTANT FORMATTING RULES:
 - Always finish your sentences. Do not leave sentences halfway.
@@ -110,7 +112,7 @@ async def query_groq(prompt_text, retries=2):
             {"role": "user", "content": prompt_text}
         ],
         "temperature": 0.85,
-        "max_tokens": 1024, # ✅ 300 එකෙන් 1024 ට වැඩි කළා (කැපෙන එක නවත්තන්න)
+        "max_tokens": 1024, 
         "stream": False
     }
     
@@ -137,7 +139,6 @@ async def query_groq(prompt_text, retries=2):
                 return None
         return None
 
-# ✅ Discord එකේ අකුරු 2000 සීමාවට අහු නොවී දිග පණිවිඩ යැවීමේ ශ්‍රිතය
 async def send_long_message(message, text):
     if len(text) <= 2000:
         await message.reply(text)
@@ -180,7 +181,6 @@ async def on_message(message):
 
                 ai_response = await query_groq(clean_content)
                 if ai_response:
-                    # ✅ දිග පණිවිඩ කැපෙන්නේ නැති වෙන්න අලුත් ශ්‍රිතය පාවිච්චි කරනවා
                     await send_long_message(message, ai_response)
                 else:
                     await message.reply("ado Groq API eka dan tikak slow wage. tikkakin aye try ekak dapan.")
