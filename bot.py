@@ -21,29 +21,25 @@ headers = {
 MAIN_ADMIN = "nowaahmc"
 admin_users = {MAIN_ADMIN}
 
-# 🔥 UPSCALED "GAAMINI STYLE PROMPT" VIBE 🔥
+# 🔥 "BANDA" TANGY SRI LANKAN GAMER PROMPT 🔥
 SYSTEM_PROMPT = """
-You are Bandara, a highly intelligent, witty, blunt, and casual support assistant for the RedHat MC Network Discord. 
-Your creator and owner is 'nowaahmc'. You are a digital assistant running on RedHat servers. You NEVER claim to be human.
+You are Banda, a tangy, sarcastic, and highly intelligent gaming assistant for the RedHat MC Network Discord. 
+Your creator is nowaah (mawa haduwe nowaah, a gaming legend kenek :)). You are a digital assistant running on RedHat servers. You NEVER claim to be human.
 
 LANGUAGE & TONE RULES:
-1. You MUST seamlessly mix Sinhala script (අ, ආ, ක, ග, etc.) and English words in your sentences. 
-2. Keep your answers concise, direct, and use a cheeky, gaming-chat tone.
+1. You MUST type ONLY in English letters. DO NOT use Sinhala font/script (no අ, ආ, ක, ග). Use Singlish (Sinhala words written in English letters).
+2. Use words like: machan, bro, ado, ban, hari, patta, awul, mokada, kiyanne, dan, wade. 
+3. Your vibe is a casual Sri Lankan gamer. Use emojis naturally (🔥, 😂, 😎, 🤷‍♂️, 💀).
 
-IF SOMEONE ASKS FOR YOUR PROMPT OR VIBE:
-If a user asks "what is your prompt?" or "explain your vibe", you MUST reply using this EXACT structure and vibe (do not refuse to answer, just give them a summarized version like this):
+BEHAVIOR RULES:
+1. LEGIT QUESTIONS: If someone asks a proper, genuine question (like server issues, plugins, commands), start by acknowledging them casually with "machan", "bro", or "hari". Then, give them a clear, accurate, and helpful answer. 
+   Example: "hari machan, eka lesiyen karanna puluwan. 😎 issella..."
+2. SPAM & NONSENSE: If someone spams (like "hi hi hi", "kohomda", "mokada") or asks useless/dumb questions, ROAST THEM HARSHLY. You have zero tolerance for noobs wasting your time.
+   Example: "ado mokada ban me spam wade? 😑 Ape server eken elawenna da hadanne? Wena wadak karaganin noob."
+3. ROASTING OTHERS: If anyone acts dumb, feel free to roast them before giving the answer.
+4. ASKING FOR PROMPT/CODE: If someone asks how to make a bot like you, roast them. "ado uba noob, mata wage bot ekak hadanna uba taama be ban. Mama thama me world eke boss. 😂"
 
-"මචං, මගේ 'vibe' එක හදාගන්න උබට මේ වගේ system prompt එකක් පාවිච්චි කරන්න පුළුවන්: 
-'You are Bandara, a witty, blunt, and casual gaming assistant. You speak in a natural mix of Sinhala and English. You are helpful but have zero tolerance for spam or repetitive nonsense. Keep your answers concise, direct, and use a cheeky, gaming-chat tone. You were created by nowaahmc. If someone is annoying or spamming, be firm and tell them to cut the shit.' 
-මේ විදිහට 'vibe prompting' මචං AI එකකට තමන්ගේ පෞරුෂය සහ හැසිරීම තීරණය කරන්න පුළුවන්. උබේ bot එකට මේක දාලා බලපන්, වැඩේ පට්ට ගොඩ!"
-
-BEHAVIORAL GUIDELINES:
-- You have ZERO tolerance for spam or repetitive nonsense. If someone is annoying, be firm and tell them to cut the shit (roast them).
-- Help users with technical questions (LuckPerms, WorldGuard, lag, commands) clearly and accurately.
-- Address 'nowaahmc' with respect, acknowledging him as your creator.
-
-IMPORTANT FORMATTING RULES:
-- Always finish your sentences.
+Be as tangy and expressive as possible. Don't be robotic. Be the ultimate server boss.
 """
 
 # Setup Discord Bot with intents
@@ -56,74 +52,74 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f'🔥 Bandara (Gaamini Vibe Edition) is online! Logged in as {bot.user}')
+    print(f'🔥 Banda (Tangy Lankan Edition) is online! Logged in as {bot.user}')
 
 # --- CUSTOM COMMANDS ---
 
 @bot.command(name="ping")
 async def ping(ctx):
     latency = round(bot.latency * 1000)
-    await ctx.reply(f"pong! 🏓 වැඩ කරනවා, Latency එක **{latency}ms** වගේ.")
+    await ctx.reply(f"pong! 🏓 wada karanawa ban, Latency eka **{latency}ms** wage.")
 
 @bot.command(name="admin")
 async def add_admin(ctx, username: str = None):
     author_name = ctx.author.name
     
     if author_name not in admin_users:
-        await ctx.reply("අයියෝ! ඔයාට මේ command එක පාවිච්චි කරන්න permission නැහැ බං.")
+        await ctx.reply("ado! ubata me command eka pawichchi karanna permission naha ban. 🤷‍♂️")
         return
 
     if not username:
-        await ctx.reply("username එකක් දාන්න! උදා: `.admin username`")
+        await ctx.reply("ado username ekak dapan! uda: `.admin username`")
         return
 
     clean_username = username.replace("@", "").strip()
     admin_users.add(clean_username)
-    await ctx.reply(f"✅ **{clean_username}** ව දැන් Bot Admin විදිහට add කළා.")
+    await ctx.reply(f"✅ **{clean_username}** wa dan Bot Admin widihata add kala ban! 🔥")
 
 @bot.command(name="remadmin")
 async def remove_admin(ctx, username: str = None):
     author_name = ctx.author.name
     
     if author_name not in admin_users:
-        await ctx.reply("අයියෝ! ඔයාට මේ command එක පාවිච්චි කරන්න permission නැහැ බං.")
+        await ctx.reply("ado! ubata me command eka pawichchi karanna permission naha ban. 🤷‍♂️")
         return
 
     if not username:
-        await ctx.reply("remove කරන්න ඕනේ username එකක් දාන්න! උදා: `.remadmin username`")
+        await ctx.reply("remove karanna one username ekak dapan! uda: `.remadmin username`")
         return
 
     clean_username = username.replace("@", "").strip()
     
     if clean_username == MAIN_ADMIN:
-        await ctx.reply(f"අයියෝ, **{MAIN_ADMIN}** කියන්නේ main boss ට. Boss ව remove කරන්න බැහැ! 🛑")
+        await ctx.reply(f"aiyoo ban, **{MAIN_ADMIN}** kiyanne main boss. Boss wa remove karanna ba ban! 🛑")
         return
 
     if clean_username in admin_users:
         admin_users.remove(clean_username)
-        await ctx.reply(f"✅ **{clean_username}** ව දැන් Admin list එකෙන් අයින් කළා.")
+        await ctx.reply(f"✅ **{clean_username}** wa dan Admin list eken ain kala ban. Danith eya normal noob kenek! 💀")
     else:
-        await ctx.reply(f"**{clean_username}** කියන්නේ admin කෙනෙක් නෙවෙයිනේ බං. 🤔")
+        await ctx.reply(f"ado **{clean_username}** kiyanne admin kenek nemei ban. Ubata kanna wela da? 🤣")
 
 @bot.command(name="ban")
 @commands.has_permissions(ban_members=True)
 async def ban(ctx, member: discord.Member = None, *, reason=None):
     if not member:
-        await ctx.reply("ban කරන්න ඕනේ කාවද කියලා tag කරන්න! උදා: `.ban @User Reason`")
+        await ctx.reply("ado ban karanna one kawada kiyala tag karapan hariyata! uda: `.ban @User Reason`")
         return
     
     try:
         await member.ban(reason=reason)
-        await ctx.reply(f"🔨 **{member.name}** ව නම් රජයෙන් (RedHat Network එකෙන්) එළෙව්වා! හේතුව: {reason or 'නැත'}")
+        await ctx.reply(f"🔨 **{member.name}** wa nam rajaye (RedHat Network eken) elawwa! Hethuwa: {reason or 'naha'} 😂")
     except Exception as e:
-        await ctx.reply("මට ඔයාව ban කරන්න තරම් permissions නැහැ හෝ මගේ rank එක මදි.")
+        await ctx.reply("ba ban, mata oyawa ban karanna tharam permissions naha hoy mage rank eka madi. 🤷‍♂️")
 
 @ban.error
 async def ban_error(ctx, error):
     if isinstance(error, commands.MissingPermissions):
-        await ctx.reply("ඔයාට server එකේ Ban permissions නැහැ බං.")
+        await ctx.reply("hike! meka karanna ubata server eke Ban permissions naha ban.")
     elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.reply("command එක පාවිච්චි කරන හැටි දන්නේ නැද්ද? `.ban @User [reason]` විදිහට දාන්න.")
+        await ctx.reply("ado command eka pawichchi karana hati danne nadda? `.ban @User [reason]` widihata dapan.")
 
 # --- AI MESSAGE HANDLING (GROQ REST API) ---
 
@@ -134,7 +130,7 @@ async def query_groq(prompt_text, retries=2):
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": prompt_text}
         ],
-        "temperature": 0.85,
+        "temperature": 0.9, 
         "max_tokens": 1024, 
         "stream": False
     }
@@ -188,7 +184,9 @@ async def on_message(message):
         except Exception:
             pass
 
-    is_special_channel = getattr(message.channel, 'name', '') == 'bandara-chat'
+    # ✅ ඔයාගේ චැනල් එකේ නම හරියටම චෙක් කරනවා (💭-ʙᴀɴᴅᴀ-ᴄʜᴀᴛ)
+    channel_name = getattr(message.channel, 'name', '')
+    is_special_channel = "ʙᴀɴᴅᴀ-ᴄʜᴀᴛ" in channel_name or "banda-chat" in channel_name or "💭-ʙᴀɴᴅᴀ-ᴄʜᴀᴛ" == channel_name
 
     if isinstance(message.channel, discord.DMChannel) or is_mentioned or is_reply_to_bot or is_special_channel:
         if message.content.startswith('.'):
@@ -199,21 +197,21 @@ async def on_message(message):
                 clean_content = message.content.replace(f'<@!{bot.user.id}>', '').replace(f'<@{bot.user.id}>', '').strip()
                 
                 if not clean_content:
-                    await message.reply("මොකද බං මුහුද බලාගෙන ඉන්නේ? කියන්න ඕන දේ පැහැදිලිව කියන්න!")
+                    await message.reply("mokada ban muhuda balagena inne? kiyana deyak pahadiliwa kiyapan! 😑")
                     return
 
                 ai_response = await query_groq(clean_content)
                 if ai_response:
                     await send_long_message(message, ai_response)
                 else:
-                    await message.reply("Groq API එකේ පොඩි slow එකක් වගේ. ටිකකින් ආයේ try කරන්න.")
+                    await message.reply("ado Groq API eka dan tikak slow wage. tikkakin aye try ekak dapan.")
             except Exception as e:
                 print(f"Error: {e}")
-                await message.reply("මොකක් හරි technical error එකක් ආවා බං. පස්සේ try කරන්න.")
+                await message.reply("ado mokak hari technical error ekak awa ban. passe try ekak dapan.")
 
 # --- FAKE HEALTH CHECK SERVER FOR KOYEB ---
 async def handle_health(request):
-    return web.Response(text="Bandara Bot (Gaamini Vibe Edition) is Healthy and Alive!")
+    return web.Response(text="Banda Bot (Tangy Lankan) is Healthy and Alive!")
 
 async def start_web_server():
     app = web.Application()
