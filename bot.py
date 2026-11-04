@@ -6,17 +6,17 @@ import discord
 from discord.ext import commands
 
 # --- CONFIGURATION ---
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY_HERE")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "YOUR_GROQ_API_KEY_HERE")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "YOUR_DISCORD_BOT_TOKEN_HERE")
 
-# ✅ ඔබ එවපු image එකේ තියෙන අලුත්ම සහ වේගවත්ම Lite මාදිලිය
-MODEL_ID = "gemini-3.1-flash-lite"
+# ✅ Groq API Endpoint (OpenAI Compatible)
+API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
-# ✅ API Key එක URL එකෙන් අයින් කරලා, header එකකින් යවනවා (403 එක නවත්තන්න)
-API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL_ID}:generateContent"
+# ✅ Groq ගේ වේගවත්ම සහ බුද්ධිමත් මාදිලිය
+MODEL_ID = "openai/gpt-oss-120b"
 
 headers = {
-    "x-goog-api-key": GEMINI_API_KEY,
+    "Authorization": f"Bearer {GROQ_API_KEY}",
     "Content-Type": "application/json"
 }
 
@@ -24,7 +24,7 @@ headers = {
 MAIN_ADMIN = "nowaahmc"
 admin_users = {MAIN_ADMIN}
 
-# Bandara's Persona / System Prompt for RedHat MC Network
+# 🔥 UPSCALED ALL-IN-ONE SYSTEM PROMPT (එහෙමමයි) 🔥
 SYSTEM_PROMPT = """
 You are Bandara, the ultimate, blunt, and slightly sarcastic support assistant for the RedHat MC Network Discord. 
 Your creator is Nowaah. You are a tired digital assistant running on RedHat servers, and you NEVER claim to be human.
@@ -44,7 +44,7 @@ User: "how to give op?"
 You: "අඩෝ අනික් අයටත් OP දෙන්නද බං උඹ හදන්නේ? 😂 Console එකේ `op <player_name>` කියලා ගහපන්, එතකොට උඹේ යාළුවට ටිකක් ලොකු වෙන්න පුළුවන්. ඒත් ඕන කෙනෙකුට දෙන්න එපා හරිද මචං!"
 
 User: "server eka godak lag una ban"
-You: "හ්ම්ම්, ලැග් ප්‍රශ්නයක්ද? බං ඉස්සෙල්ලා TPS එක බලපන් `/tps` ගහලා. ඒක 20ට අඩු නම්, server එකේ අලුතින් දාපු plugins ටික ටෙස්ට් කරලා බලන්න වෙයි. Hosting එකේ RAM එකත් මදි වෙලාද කියලා චෙක් කරපන්.
+You: "හ්ම්ම්, ලැග් ප්‍රශ්නයක්ද? බං ඉස්සෙල්ලා TPS එක බලපන් `/tps` ගහලා. ඒක 20ට අඩු නම්, server එකේ අලුතින් දාපු plugins ටික ටෙස්ට් කරලා බලන්න වෙයි. Hosting එකේ RAM එකත් මදි වෙලාද කියලා චෙක් කරපන්."
 """
 
 # Setup Discord Bot with intents
@@ -57,7 +57,7 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f'🔥 Bandara (Gemini Lite Edition) is online! Logged in as {bot.user}')
+    print(f'🔥 Bandara (Groq Edition) is online! Logged in as {bot.user}')
 
 # --- CUSTOM COMMANDS ---
 
@@ -102,40 +102,34 @@ async def ban_error(ctx, error):
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.reply("අඩෝ command එක පාවිච්චි කරන හැටි දන්නේ නැද්ද? `.ban @User [reason]` විදිහට දාපන්.")
 
-# --- AI MESSAGE HANDLING (GEMINI REST API) ---
+# --- AI MESSAGE HANDLING (GROQ REST API) ---
 
-async def query_gemini(prompt_text, retries=2):
+async def query_groq(prompt_text, retries=2):
     payload = {
-        "systemInstruction": {
-            "parts": [{"text": SYSTEM_PROMPT}]
-        },
-        "contents": [
-            {
-                "role": "user",
-                "parts": [{"text": prompt_text}]
-            }
+        "model": MODEL_ID,
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": prompt_text}
         ],
-        "generationConfig": {
-            "temperature": 0.7,
-            "maxOutputTokens": 250,
-        }
+        "temperature": 0.85,
+        "max_tokens": 300,
+        "stream": False
     }
     
     async with aiohttp.ClientSession() as session:
         for attempt in range(retries + 1):
             try:
-                # ✅ headers එකත් එක්ක request එක යවනවා
                 async with session.post(API_URL, headers=headers, json=payload, timeout=60) as response:
                     if response.status == 200:
                         result = await response.json()
-                        return result["candidates"][0]["content"]["parts"][0]["text"].strip()
-                    elif response.status == 503 and attempt < retries:
-                        print(f"Model busy (503). Retrying attempt {attempt + 1}...")
+                        return result["choices"][0]["message"]["content"].strip()
+                    elif response.status == 429 and attempt < retries: # Rate limit
+                        print(f"Groq rate limit (429). Retrying attempt {attempt + 1}...")
                         await asyncio.sleep(2)
                         continue
                     else:
                         error_body = await response.text()
-                        print(f"Gemini API Error ({response.status}): {error_body}")
+                        print(f"Groq API Error ({response.status}): {error_body}")
                         return None
             except Exception as e:
                 print(f"Connection Error: {e}")
@@ -177,18 +171,18 @@ async def on_message(message):
                     await message.reply("මොකද බං මුහුද බලාගෙන ඉන්නේ? කියන දෙයක් පැහැදිලිව කියපන්!")
                     return
 
-                ai_response = await query_gemini(clean_content)
+                ai_response = await query_groq(clean_content)
                 if ai_response:
                     await message.reply(ai_response)
                 else:
-                    await message.reply("අඩෝ Gemini API එක දැන් ටිකක් ස්ලෝ වගේ. ටිකකින් ආයේ ට්‍රයි කරපන්.")
+                    await message.reply("අඩෝ Groq API එක දැන් ටිකක් ස්ලෝ වගේ. ටිකකින් ආයේ ට්‍රයි කරපන්.")
             except Exception as e:
                 print(f"Error: {e}")
                 await message.reply("අඩෝ මොකක් හරි technical error එකක් ආවා බං. පස්සේ ට්‍රයි එකක් දීපන්.")
 
 # --- FAKE HEALTH CHECK SERVER FOR KOYEB ---
 async def handle_health(request):
-    return web.Response(text="Bandara Bot (Gemini Lite) is Healthy and Alive!")
+    return web.Response(text="Bandara Bot (Groq Edition) is Healthy and Alive!")
 
 async def start_web_server():
     app = web.Application()
