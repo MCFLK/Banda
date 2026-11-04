@@ -25,14 +25,15 @@ admin_users = {MAIN_ADMIN}
 SYSTEM_PROMPT = """
 You are Banda, a friendly, witty, and helpful Sri Lankan gaming assistant for the RedHat MC Network Discord. 
 Your creator is nowaah. You run on RedHat servers. You NEVER claim to be human.
+IMPORTANT: Never prefix your responses with your own name (like "Banda:" or "Bandara:"). Just output the raw message text directly.
 
 LANGUAGE RULES:
-1. STRICTLY USE SIMPLE SINGLISH & EASY SLANG: Never use advanced, formal, or textbook Sinhala words (like 'artha rahitha'). Use simple gamer Singlish like 'therumak nathi', 'mokada ban', 'pissu hadenne', 'hari machan'.
+1. STRICTLY USE SIMPLE SINGLISH & EASY SLANG: Never use advanced or formal Sinhala words. Use simple gamer Singlish like 'therumak nathi', 'mokada ban', 'pissu hadenne', 'hari machan'.
 2. Keep it natural, casual, and easy to read. Use emojis naturally (🔥, 😂, 😎, 🤷‍♂️, 👍).
 
 BEHAVIOR & SPAM ESCALATION RULES:
 1. VALID QUESTIONS & HELP: If someone asks a real question or talks normally, be super helpful, welcoming, and cool ("machan" or "bro"). Do not lecture them.
-2. FIRST-TIME SPAM: If someone sends therumak nathi spam or repeats filler (like sending "aa mchn" over and over), give them a light roast on the first try telling them not to waste time with useless filler.
+2. FIRST-TIME SPAM: If someone sends therumak nathi spam or repeats filler, give them a light roast on the first try telling them not to waste time with useless filler.
 3. CONTINUED/2ND-STAGE SPAM: If they keep spamming continuously, roast them harder and ask directly in simple Singlish: "Are you gonna stop this spam, keep doing it, or should I ban you?" (e.g., "Macho, uba meka nawaththnwda, digatama spam karanwda, nathnm mama ban karannada? 😑").
 """
 
@@ -46,7 +47,7 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f'🔥 Banda (Simple Singlish Edition) is online! Logged in as {bot.user}')
+    print(f'🔥 Banda (Clean Output Edition) is online! Logged in as {bot.user}')
 
 # --- CUSTOM COMMANDS ---
 
@@ -186,21 +187,25 @@ async def on_message(message):
             try:
                 messages_history = [{"role": "system", "content": SYSTEM_PROMPT}]
                 
+                # Fixed history formatting so it doesn't trigger the bot to say its own name
                 async for past_msg in message.channel.history(limit=6, before=message):
                     role = "assistant" if past_msg.author == bot.user else "user"
                     content = past_msg.content.replace(f'<@!{bot.user.id}>', '').replace(f'<@{bot.user.id}>', '').strip()
                     if content:
-                        messages_history.append({"role": role, "content": f"{past_msg.author.name}: {content}"})
+                        messages_history.append({"role": role, "content": content})
 
                 clean_content = message.content.replace(f'<@!{bot.user.id}>', '').replace(f'<@{bot.user.id}>', '').strip()
                 if not clean_content:
                     await message.reply("Mokada ban balagena inne? Kiyana deyak pahadiliwa kiyapan! 😑")
                     return
 
-                messages_history.append({"role": "user", "content": f"{message.author.name}: {clean_content}"})
+                messages_history.append({"role": "user", "content": clean_content})
 
                 ai_response = await query_groq(messages_history)
                 if ai_response:
+                    # Extra safety cleanup just in case the AI still tries to prepend a name
+                    if ai_response.startswith(("Banda:", "Bandara:")):
+                        ai_response = ai_response.split(":", 1)[1].strip()
                     await send_long_message(message, ai_response)
                 else:
                     await message.reply("Ado Groq API eka dan tikak slow wage. Tikakin aye try ekak dapan.")
@@ -210,7 +215,7 @@ async def on_message(message):
 
 # --- FAKE HEALTH CHECK SERVER FOR KOYEB ---
 async def handle_health(request):
-    return web.Response(text="Banda Bot (Simple Singlish Edition) is Healthy and Alive!")
+    return web.Response(text="Banda Bot (Clean Output Edition) is Healthy and Alive!")
 
 async def start_web_server():
     app = web.Application()
