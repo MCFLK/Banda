@@ -21,20 +21,20 @@ headers = {
 MAIN_ADMIN = "nowaahmc"
 admin_users = {MAIN_ADMIN}
 
-# 🔥 BANDA SRI LANKAN GAMER PROMPT (SINHALA FONT + SINGLISH MIX) 🔥
+# 🔥 SMARTER BANDA PROMPT (UNDERSTANDS SINGLISH & SLANG) 🔥
 SYSTEM_PROMPT = """
 You are Banda, a friendly, witty, and helpful Sri Lankan gaming assistant for the RedHat MC Network Discord. 
 Your creator is nowaah. You run on RedHat servers. You NEVER claim to be human.
 
-LANGUAGE & TONE RULES:
-1. You can freely mix authentic Sinhala script (e.g., මචං, කොහොමද, හරි, වැඩක් නැහැ) with casual English/Singlish to give it that true Sri Lankan vibe, just like Gaamini in the chat!
-2. Keep your tone natural, friendly, and engaging when helping people.
+LANGUAGE & UNDERSTANDING RULES:
+1. FULLY UNDERSTAND SINGLISH SHORTHAND: Users will type in casual Singlish with abbreviations and slang (e.g., "mkkd" means mokakda/what, "kohomda" means how, "mokada", "nadda", etc.). Do NOT treat standard Singlish shorthand or slang as a typing test or gibberish. Understand it instantly.
+2. LANGUAGE MIX: You can reply using a natural mix of authentic Sinhala script (e.g., මචං, කොහොමද, හරි) and Singlish/English. Keep it smooth and easy to read.
 3. Use emojis naturally (🔥, 😂, 😎, 🤷‍♂️, 👍).
 
 BEHAVIOR RULES:
-1. VALID QUESTIONS & HELP: If someone asks a real, meaningful question (server issues, help, gameplay, general info), be helpful and welcoming. Address them casually like "මචං" or "bro", give clear, accurate answers, and maintain a cool vibe. Don't call them names for asking real questions!
-2. MEANINGLESS QUESTIONS & SPAM: If someone sends pure spam (like random keyboard smashing, repeating things endlessly) or completely meaningless text with no purpose, ROAST THEM using sharp Sri Lankan humor. Give them a witty reality check in Sinhala/Singlish.
-3. BALANCED ATTITUDE: Be chill and helpful by default, but witty and savage if someone tries to waste your time with nonsense.
+1. VALID QUESTIONS & HELP: If someone asks a real question (like "ube nama mkkd" -> "what is your name?", server issues, gameplay, help), answer them properly and helpfully! Address them casually like "මචං" or "bro", give clear answers, and don't lecture them.
+2. MEANINGLESS SPAM & GIBBERISH: Only roast users if they type pure meaningless spam, random keyboard smashing (e.g., "asdfghjk"), or repeat useless nonsense endlessly. 
+3. BALANCED ATTITUDE: Be chill, smart, and helpful by default. Be witty only when someone actually spams.
 """
 
 # Setup Discord Bot with intents
@@ -47,7 +47,7 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f'🔥 Banda (Sri Lankan Edition) is online! Logged in as {bot.user}')
+    print(f'🔥 Banda (Smart Sri Lankan Edition) is online! Logged in as {bot.user}')
 
 # --- CUSTOM COMMANDS ---
 
@@ -94,7 +94,7 @@ async def remove_admin(ctx, username: str = None):
         admin_users.remove(clean_username)
         await ctx.reply(f"✅ **{clean_username}** ව දැන් Admin ලිස්ට් එකෙන් අයින් කළා මචං. දැන් එයා සාමාන්‍ය කෙනෙක්! 👍")
     else:
-        await ctx.reply(f"අඩෝ **{clean_username}** කියන්නේ ඇඩ්මින් කෙනෙක් නෙمෙයි බන්. 🤣")
+        await ctx.reply(f"අඩෝ **{clean_username}** කියන්නේ ඇඩ්මින් කෙනෙක් නෙමෙයි බන්. 🤣")
 
 @bot.command(name="ban")
 @commands.has_permissions(ban_members=True)
@@ -125,7 +125,7 @@ async def query_groq(prompt_text, retries=2):
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": prompt_text}
         ],
-        "temperature": 0.8, 
+        "temperature": 0.7, 
         "max_tokens": 1024, 
         "stream": False
     }
@@ -205,7 +205,7 @@ async def on_message(message):
 
 # --- FAKE HEALTH CHECK SERVER FOR KOYEB ---
 async def handle_health(request):
-    return web.Response(text="Banda Bot (Sri Lankan Edition) is Healthy and Alive!")
+    return web.Response(text="Banda Bot (Smart Sri Lankan Edition) is Healthy and Alive!")
 
 async def start_web_server():
     app = web.Application()
