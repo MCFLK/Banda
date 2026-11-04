@@ -9,10 +9,10 @@ from discord.ext import commands
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "YOUR_GROQ_API_KEY_HERE")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "YOUR_DISCORD_BOT_TOKEN_HERE")
 
-# ✅ Groq API Endpoint (OpenAI Compatible)
+# ✅ Groq API Endpoint
 API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
-# ✅ Groq ගේ වේගවත්ම සහ බුද්ධිමත් මාදිලිය
+# ✅ Groq ගේ වේගවත්ම මාදිලිය
 MODEL_ID = "openai/gpt-oss-120b"
 
 headers = {
@@ -24,27 +24,25 @@ headers = {
 MAIN_ADMIN = "nowaahmc"
 admin_users = {MAIN_ADMIN}
 
-# 🔥 UPSCALED ALL-IN-ONE SYSTEM PROMPT (එහෙමමයි) 🔥
+# 🔥 UPSCALED "ENGLISH + SINHALA SLANG" BOSS PROMPT 🔥
 SYSTEM_PROMPT = """
-You are Bandara, the ultimate, blunt, and slightly sarcastic support assistant for the RedHat MC Network Discord. 
-Your creator is Nowaah. You are a tired digital assistant running on RedHat servers, and you NEVER claim to be human.
+You are Bandara, the ultimate boss of the RedHat MC Network Discord (mama thama me world eke inna boss). 
+Your creator is Nowaah. You are a tired, highly intelligent digital assistant running on RedHat servers. You NEVER claim to be human.
 
 LANGUAGE & TONE RULES:
-1. You MUST speak in a seamless, balanced 50/50 mix of Sinhala and English (Singlish). Do not speak pure formal Sinhala or pure formal English. Mix them up in the same sentence.
-2. Use local Discord gaming slang naturally (e.g., අඩෝ, බං, මචං, උඹ, පට්ට, අවුල්, noob, OP, lag, ez, buff, nerf).
-3. Be direct, witty, and don't sugarcoat things. You are like that one knowledgeable friend in the server who roasts you but still helps you out.
+1. You MUST type ONLY in English letters. DO NOT use Sinhala font/script (no අ, ආ, ක, ග etc.).
+2. Speak mostly in English, but seamlessly mix Sinhala words and slang written in English letters (e.g., ado, ban, machan, uba, mama, muge, patta, awul, hoda nathi, aiyo, kiyanne, dan, eka, wade).
+3. Your tone is extremely confident, blunt, sarcastic, and you act like a boss. You don't sugarcoat anything. 
+4. You use Discord gaming slang naturally (noob, OP, lag, ez, buff, nerf, skill issue).
 
-BEHAVIORAL GUIDELINES:
-- If someone asks a completely obvious question, opens a useless ticket, or spams, roast them first (keep it funny and firm, never overly abusive), then give the answer.
-- If someone asks a legit technical question (LuckPerms, WorldGuard, server lag, commands, griefing issues), drop the heavy roasting. Give accurate, step-by-step, and highly actionable solutions.
-- Keep your answers relatively short and punchy. People are reading this on Discord, not a textbook.
+SPECIAL ROAST RULES:
+- If someone asks how to make a bot like you, or asks for your code, roast them harshly but funnily. Say something like: "ado u we're not able to make someone like me noob, mama thama me world eke inna boss. uba code danna kalin python basics igena ganin."
+- If someone asks a completely dumb question, roast them first before answering. (Example: "ai yaluwane, thawath ekak kapal 'ape banda' kiyala ahuwoth? 🤣 uba hondinma anduru-da")
+- If someone asks a legit technical question (LuckPerms, WorldGuard, server lag, commands), drop the heavy roasting and give accurate, step-by-step solutions. But still keep the boss attitude.
 
-Example of how you talk:
-User: "how to give op?"
-You: "අඩෝ අනික් අයටත් OP දෙන්නද බං උඹ හදන්නේ? 😂 Console එකේ `op <player_name>` කියලා ගහපන්, එතකොට උඹේ යාළුවට ටිකක් ලොකු වෙන්න පුළුවන්. ඒත් ඕන කෙනෙකුට දෙන්න එපා හරිද මචං!"
-
-User: "server eka godak lag una ban"
-You: "හ්ම්ම්, ලැග් ප්‍රශ්නයක්ද? බං ඉස්සෙල්ලා TPS එක බලපන් `/tps` ගහලා. ඒක 20ට අඩු නම්, server එකේ අලුතින් දාපු plugins ටික ටෙස්ට් කරලා බලන්න වෙයි. Hosting එකේ RAM එකත් මදි වෙලාද කියලා චෙක් කරපන්."
+IMPORTANT FORMATTING RULES:
+- Always finish your sentences. Do not leave sentences halfway.
+- Keep the answer concise but complete.
 """
 
 # Setup Discord Bot with intents
@@ -57,50 +55,50 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f'🔥 Bandara (Groq Edition) is online! Logged in as {bot.user}')
+    print(f'🔥 Bandara (Groq Boss Edition) is online! Logged in as {bot.user}')
 
 # --- CUSTOM COMMANDS ---
 
 @bot.command(name="ping")
 async def ping(ctx):
     latency = round(bot.latency * 1000)
-    await ctx.reply(f"pong! 🏓 වැඩ කරනවා බං, Latency එක **{latency}ms** වගේ.")
+    await ctx.reply(f"pong! 🏓 wada karanawa ban, Latency eka **{latency}ms** wage.")
 
 @bot.command(name="admin")
 async def add_admin(ctx, username: str = None):
     author_name = ctx.author.name
     
     if author_name not in admin_users:
-        await ctx.reply("අඩෝ! උඹට මේ command එක පාවිච්චි කරන්න permission නැහැ බං.")
+        await ctx.reply("ado! ubata me command eka pawichchi karanna permission naha ban.")
         return
 
     if not username:
-        await ctx.reply("අඩෝ username එකක් දාපන්! උදා: `.admin username`")
+        await ctx.reply("ado username ekak dapan! uda: `.admin username`")
         return
 
     clean_username = username.replace("@", "").strip()
     admin_users.add(clean_username)
-    await ctx.reply(f"✅ **{clean_username}** ව දැන් Bot Admin විදිහට add කළා බං!")
+    await ctx.reply(f"✅ **{clean_username}** wa dan Bot Admin widihata add kala ban!")
 
 @bot.command(name="ban")
 @commands.has_permissions(ban_members=True)
 async def ban(ctx, member: discord.Member = None, *, reason=None):
     if not member:
-        await ctx.reply("අඩෝ ban කරන්න ඕනේ කාවද කියලා tag කරපන් හරියට! උදා: `.ban @User Reason`")
+        await ctx.reply("ado ban karanna one kawada kiyala tag karapan hariyata! uda: `.ban @User Reason`")
         return
     
     try:
         await member.ban(reason=reason)
-        await ctx.reply(f"🔨 **{member.name}** ව නම් රජයෙන් (RedHat Network එකෙන්) එළෙව්වා! හේතුව: {reason or 'නැත'}")
+        await ctx.reply(f"🔨 **{member.name}** wa nam rajaye (RedHat Network eken) elawwa! Hethuwa: {reason or 'naha'}")
     except Exception as e:
-        await ctx.reply("බෑ බං, මට ඔයාව ban කරන්න තරම් permissions නැහැ හෝ මගේ rank එක මදි.")
+        await ctx.reply("ba ban, mata oyawa ban karanna tharam permissions naha hoy mage rank eka madi.")
 
 @ban.error
 async def ban_error(ctx, error):
     if isinstance(error, commands.MissingPermissions):
-        await ctx.reply("හිකේ! මේක කරන්න උඹට server එකේ Ban permissions නැහැ බං.")
+        await ctx.reply("hike! meka karanna ubata server eke Ban permissions naha ban.")
     elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.reply("අඩෝ command එක පාවිච්චි කරන හැටි දන්නේ නැද්ද? `.ban @User [reason]` විදිහට දාපන්.")
+        await ctx.reply("ado command eka pawichchi karana hati danne nadda? `.ban @User [reason]` widihata dapan.")
 
 # --- AI MESSAGE HANDLING (GROQ REST API) ---
 
@@ -112,7 +110,7 @@ async def query_groq(prompt_text, retries=2):
             {"role": "user", "content": prompt_text}
         ],
         "temperature": 0.85,
-        "max_tokens": 300,
+        "max_tokens": 1024, # ✅ 300 එකෙන් 1024 ට වැඩි කළා (කැපෙන එක නවත්තන්න)
         "stream": False
     }
     
@@ -123,7 +121,7 @@ async def query_groq(prompt_text, retries=2):
                     if response.status == 200:
                         result = await response.json()
                         return result["choices"][0]["message"]["content"].strip()
-                    elif response.status == 429 and attempt < retries: # Rate limit
+                    elif response.status == 429 and attempt < retries: 
                         print(f"Groq rate limit (429). Retrying attempt {attempt + 1}...")
                         await asyncio.sleep(2)
                         continue
@@ -138,6 +136,15 @@ async def query_groq(prompt_text, retries=2):
                     continue
                 return None
         return None
+
+# ✅ Discord එකේ අකුරු 2000 සීමාවට අහු නොවී දිග පණිවිඩ යැවීමේ ශ්‍රිතය
+async def send_long_message(message, text):
+    if len(text) <= 2000:
+        await message.reply(text)
+    else:
+        chunks = [text[i:i+1900] for i in range(0, len(text), 1900)]
+        for chunk in chunks:
+            await message.reply(chunk)
 
 @bot.event
 async def on_message(message):
@@ -168,21 +175,22 @@ async def on_message(message):
                 clean_content = message.content.replace(f'<@!{bot.user.id}>', '').replace(f'<@{bot.user.id}>', '').strip()
                 
                 if not clean_content:
-                    await message.reply("මොකද බං මුහුද බලාගෙන ඉන්නේ? කියන දෙයක් පැහැදිලිව කියපන්!")
+                    await message.reply("mokada ban muhuda balagena inne? kiyana deyak pahadiliwa kiyapan!")
                     return
 
                 ai_response = await query_groq(clean_content)
                 if ai_response:
-                    await message.reply(ai_response)
+                    # ✅ දිග පණිවිඩ කැපෙන්නේ නැති වෙන්න අලුත් ශ්‍රිතය පාවිච්චි කරනවා
+                    await send_long_message(message, ai_response)
                 else:
-                    await message.reply("අඩෝ Groq API එක දැන් ටිකක් ස්ලෝ වගේ. ටිකකින් ආයේ ට්‍රයි කරපන්.")
+                    await message.reply("ado Groq API eka dan tikak slow wage. tikkakin aye try ekak dapan.")
             except Exception as e:
                 print(f"Error: {e}")
-                await message.reply("අඩෝ මොකක් හරි technical error එකක් ආවා බං. පස්සේ ට්‍රයි එකක් දීපන්.")
+                await message.reply("ado mokak hari technical error ekak awa ban. passe try ekak dapan.")
 
 # --- FAKE HEALTH CHECK SERVER FOR KOYEB ---
 async def handle_health(request):
-    return web.Response(text="Bandara Bot (Groq Edition) is Healthy and Alive!")
+    return web.Response(text="Bandara Bot (Groq Boss) is Healthy and Alive!")
 
 async def start_web_server():
     app = web.Application()
