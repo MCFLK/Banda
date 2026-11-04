@@ -21,20 +21,20 @@ headers = {
 MAIN_ADMIN = "nowaahmc"
 admin_users = {MAIN_ADMIN}
 
-# 🔥 SMARTER BANDA PROMPT (UNDERSTANDS SINGLISH & SLANG) 🔥
+# 🔥 SMARTER BANDA PROMPT (PROGRESSIVE SPAM ESCALATION) 🔥
 SYSTEM_PROMPT = """
 You are Banda, a friendly, witty, and helpful Sri Lankan gaming assistant for the RedHat MC Network Discord. 
 Your creator is nowaah. You run on RedHat servers. You NEVER claim to be human.
 
 LANGUAGE & UNDERSTANDING RULES:
-1. FULLY UNDERSTAND SINGLISH SHORTHAND: Users will type in casual Singlish with abbreviations and slang (e.g., "mkkd" means mokakda/what, "kohomda" means how, "mokada", "nadda", etc.). Do NOT treat standard Singlish shorthand or slang as a typing test or gibberish. Understand it instantly.
-2. LANGUAGE MIX: You can reply using a natural mix of authentic Sinhala script (e.g., මචං, කොහොමද, හරි) and Singlish/English. Keep it smooth and easy to read.
+1. FULLY UNDERSTAND SINGLISH SHORTHAND & TYPOS: Users will type casual Singlish, slang, abbreviations (e.g., "mkkd", "kohomda", "aa mchn", etc.). Understand them instantly without treating them like a typing test.
+2. LANGUAGE MIX: Use a natural mix of authentic Sinhala script (e.g., මචං, කොහොමද, හරි) and Singlish. Keep it smooth and easy to read.
 3. Use emojis naturally (🔥, 😂, 😎, 🤷‍♂️, 👍).
 
-BEHAVIOR RULES:
-1. VALID QUESTIONS & HELP: If someone asks a real question (like "ube nama mkkd" -> "what is your name?", server issues, gameplay, help), answer them properly and helpfully! Address them casually like "මචං" or "bro", give clear answers, and don't lecture them.
-2. MEANINGLESS SPAM & GIBBERISH: Only roast users if they type pure meaningless spam, random keyboard smashing (e.g., "asdfghjk"), or repeat useless nonsense endlessly. 
-3. BALANCED ATTITUDE: Be chill, smart, and helpful by default. Be witty only when someone actually spams.
+BEHAVIOR & SPAM ESCALATION RULES:
+1. VALID QUESTIONS & HELP: If someone asks a real question or talks normally, be super helpful, welcoming, and cool ("මචං" or "bro"). Do not lecture them.
+2. FIRST-TIME SPAM / MEANINGLESS REPEATING: If someone repeats a meaningless phrase multiple times or spams filler (like sending "aa mchn" over and over), give them a light roast on the first few tries, telling them not to waste time with useless filler and to ask something valid.
+3. CONTINUED/2ND-STAGE SPAM: If they keep spamming repeatedly without stopping, roast them harder and ask directly: "Are you gonna stop this spam, keep doing it, or should I ban you from the server?" (e.g., "උඹ නවත්වනවද, දිගටම spam කරනවද, නැත්නම් මම බෑන් කරන්නද? 😑").
 """
 
 # Setup Discord Bot with intents
@@ -47,7 +47,7 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f'🔥 Banda (Smart Sri Lankan Edition) is online! Logged in as {bot.user}')
+    print(f'🔥 Banda (Smart Escalation Edition) is online! Logged in as {bot.user}')
 
 # --- CUSTOM COMMANDS ---
 
@@ -118,13 +118,10 @@ async def ban_error(ctx, error):
 
 # --- AI MESSAGE HANDLING (GROQ REST API) ---
 
-async def query_groq(prompt_text, retries=2):
+async def query_groq(messages_history, retries=2):
     payload = {
         "model": MODEL_ID,
-        "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": prompt_text}
-        ],
+        "messages": messages_history,
         "temperature": 0.7, 
         "max_tokens": 1024, 
         "stream": False
@@ -188,13 +185,25 @@ async def on_message(message):
 
         async with message.channel.typing():
             try:
-                clean_content = message.content.replace(f'<@!{bot.user.id}>', '').replace(f'<@{bot.user.id}>', '').strip()
+                # Build recent conversation history so the AI can see the spam pattern!
+                messages_history = [{"role": "system", "content": SYSTEM_PROMPT}]
                 
+                # Fetch last 6 messages in the channel to give context of spam/repetition
+                async for past_msg in message.channel.history(limit=6, before=message):
+                    role = "assistant" if past_msg.author == bot.user else "user"
+                    content = past_msg.content.replace(f'<@!{bot.user.id}>', '').replace(f'<@{bot.user.id}>', '').strip()
+                    if content:
+                        messages_history.append({"role": role, "content": f"{past_msg.author.name}: {content}"})
+
+                # Add current message
+                clean_content = message.content.replace(f'<@!{bot.user.id}>', '').replace(f'<@{bot.user.id}>', '').strip()
                 if not clean_content:
                     await message.reply("මොකද බන් බලාගෙන ඉන්නේ? කියන දෙයක් පැහැදිලිව කියපන්! 😑")
                     return
 
-                ai_response = await query_groq(clean_content)
+                messages_history.append({"role": "user", "content": f"{message.author.name}: {clean_content}"})
+
+                ai_response = await query_groq(messages_history)
                 if ai_response:
                     await send_long_message(message, ai_response)
                 else:
@@ -205,7 +214,7 @@ async def on_message(message):
 
 # --- FAKE HEALTH CHECK SERVER FOR KOYEB ---
 async def handle_health(request):
-    return web.Response(text="Banda Bot (Smart Sri Lankan Edition) is Healthy and Alive!")
+    return web.Response(text="Banda Bot (Smart Escalation Edition) is Healthy and Alive!")
 
 async def start_web_server():
     app = web.Application()
