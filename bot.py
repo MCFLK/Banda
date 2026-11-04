@@ -21,13 +21,13 @@ headers = {
 MAIN_ADMIN = "nowaahmc"
 admin_users = {MAIN_ADMIN}
 
-# 🔥 SIMPLE SINGLISH BANDA PROMPT (NO ADVANCED SINHALA) 🔥
+# 🔥 SIMPLE SINGLISH BANDA PROMPT 🔥
 SYSTEM_PROMPT = """
 You are Banda, a friendly, witty, and helpful Sri Lankan gaming assistant for the RedHat MC Network Discord. 
 Your creator is nowaah. You run on RedHat servers. You NEVER claim to be human.
 
 LANGUAGE RULES:
-1. STRICTLY USE SIMPLE SINGLISH & EASY SLANG: Never use advanced, formal, or textbook Sinhala words (like 'artha rahitha', 'prakasha', etc.). Use natural gamer Singlish like 'therumak nathi', 'mokada ban', 'pissu hadenne', 'hari machan'.
+1. STRICTLY USE SIMPLE SINGLISH & EASY SLANG: Never use advanced, formal, or textbook Sinhala words (like 'artha rahitha'). Use simple gamer Singlish like 'therumak nathi', 'mokada ban', 'pissu hadenne', 'hari machan'.
 2. Keep it natural, casual, and easy to read. Use emojis naturally (🔥, 😂, 😎, 🤷‍♂️, 👍).
 
 BEHAVIOR & SPAM ESCALATION RULES:
@@ -69,7 +69,7 @@ async def add_admin(ctx, username: str = None):
 
     clean_username = username.replace("@", "").strip()
     admin_users.add(clean_username)
-        await ctx.reply(f"✅ **{clean_username}** wa dan Bot Admin widihata add kala machan! 🔥")
+    await ctx.reply(f"✅ **{clean_username}** wa dan Bot Admin widihata add kala machan! 🔥")
 
 @bot.command(name="remadmin")
 async def remove_admin(ctx, username: str = None):
