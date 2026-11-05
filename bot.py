@@ -11,8 +11,8 @@ DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "YOUR_DISCORD_BOT_TOKEN_HERE")
 
 API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
-# ✅ අලුතෙන් දාපු Llama 3.3 මාදිලිය
-MODEL_ID = "meta-llama/llama-4-maverick-17b-128e-instruct"
+# ✅ Groq හි වඩාත්ම බුද්ධිමත් සහ බලවත්ම මොඩලය
+MODEL_ID = "openai/gpt-oss-120b"
 
 headers = {
     "Authorization": f"Bearer {GROQ_API_KEY}",
@@ -54,7 +54,7 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f'🔥 Banda (Tangy Lankan Edition - Llama 3.3) is online! Logged in as {bot.user}')
+    print(f'🔥 Banda (Tangy Lankan Edition - GPT-OSS 120B) is online! Logged in as {bot.user}')
 
 # --- CUSTOM COMMANDS ---
 
@@ -213,7 +213,7 @@ async def on_message(message):
 
 # --- FAKE HEALTH CHECK SERVER FOR KOYEB ---
 async def handle_health(request):
-    return web.Response(text="Banda Bot (Llama 3.3) is Healthy and Alive!")
+    return web.Response(text="Banda Bot (GPT-OSS 120B) is Healthy and Alive!")
 
 async def start_web_server():
     app = web.Application()
