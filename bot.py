@@ -12,7 +12,7 @@ DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "YOUR_DISCORD_BOT_TOKEN_HERE")
 API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 # ✅ අලුතෙන් දාපු Llama 3.3 මාදිලිය
-MODEL_ID = "llama-3.3-70b-versatile"
+MODEL_ID = "meta-llama/llama-4-maverick-17b-128e-instruct"
 
 headers = {
     "Authorization": f"Bearer {GROQ_API_KEY}",
