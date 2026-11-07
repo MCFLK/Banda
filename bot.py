@@ -9,10 +9,11 @@ from discord.ext import commands
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "YOUR_GROQ_API_KEY_HERE")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "YOUR_DISCORD_BOT_TOKEN_HERE")
 
+# ✅ Groq API Endpoint එක එහෙමමයි
 API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
-# ✅ Groq හි වඩාත්ම බුද්ධිමත් සහ බලවත්ම මොඩලය
-MODEL_ID = "openai/gpt-oss-120b"
+# ✅ අලුත් Qwen මොඩලය
+MODEL_ID = "qwen/qwen3.8-27b"
 
 headers = {
     "Authorization": f"Bearer {GROQ_API_KEY}",
@@ -54,7 +55,7 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f'🔥 Banda (Tangy Lankan Edition - GPT-OSS 120B) is online! Logged in as {bot.user}')
+    print(f'🔥 Banda (Tangy Lankan Edition - Qwen 3.8) is online! Logged in as {bot.user}')
 
 # --- CUSTOM COMMANDS ---
 
@@ -213,7 +214,7 @@ async def on_message(message):
 
 # --- FAKE HEALTH CHECK SERVER FOR KOYEB ---
 async def handle_health(request):
-    return web.Response(text="Banda Bot (GPT-OSS 120B) is Healthy and Alive!")
+    return web.Response(text="Banda Bot (Qwen 3.8) is Healthy and Alive!")
 
 async def start_web_server():
     app = web.Application()
